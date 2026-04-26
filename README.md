@@ -1,0 +1,2 @@
+# SmartFarmApplication
+React native application 

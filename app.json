@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Smart Farmer",
+    "slug": "SmartFarmAppNew",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/S.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/S.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/S.png",
+        "backgroundColor": "#ffffff",
+        "softwareKeyboardLayoutMode": "adjustResize"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.emma111.SmartFarmAppNew",
+      "softwareKeyboardLayoutMode": "adjustResize"
+    },
+    "web": {
+      "favicon": "./assets/S.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fb916c58-1bcb-4afd-b71b-fa57c2876d9c"
+      }
+    },
+    "owner": "emma111",
+    "plugins": [
+      "expo-audio"
+    ]
+  }
+}
