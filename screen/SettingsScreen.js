@@ -7,6 +7,7 @@ import {
   Image,
   Alert,
   ScrollView,
+  Modal,
 } from 'react-native';
 import { Text, Divider, Avatar, List, Surface } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -24,6 +25,7 @@ export default function SettingsScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [notifications, setNotifications] = useState(true);
+  const [langModalVisible, setLangModalVisible] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(t("logout"), t("logout_confirm"), [
@@ -102,15 +104,7 @@ export default function SettingsScreen() {
             <SettingItem 
               icon="earth" 
               label={t("language")} 
-              onPress={() => {
-                Alert.alert(t("language"), t("select_language"), [
-                  { text: '🇺🇸 English', onPress: () => changeLanguage('en') },
-                  { text: '🇳🇬 Hausa', onPress: () => changeLanguage('ha') },
-                  { text: '🇳🇬 Yoruba', onPress: () => changeLanguage('yo') },
-                  { text: '🇳🇬 Igbo', onPress: () => changeLanguage('ig') },
-                  { text: t("cancel"), style: 'cancel' },
-                ]);
-              }}
+              onPress={() => setLangModalVisible(true)}
               right={
                 <View style={styles.langBadge}>
                   <Text style={styles.langBadgeText}>{lang === 'en' ? 'English' : lang.toUpperCase()}</Text>
@@ -138,6 +132,35 @@ export default function SettingsScreen() {
           <Text style={styles.versionText}>{t("version")} 1.0.4</Text>
         </View>
       </ScrollView>
+
+      {/* ── LANGUAGE MODAL ──────────────── */}
+      <Modal visible={langModalVisible} transparent={true} animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{t("select_language")}</Text>
+            
+            <TouchableOpacity style={styles.langOption} onPress={() => { changeLanguage('en'); setLangModalVisible(false); }}>
+              <Text style={styles.langText}>🇺🇸 English</Text>
+            </TouchableOpacity>
+            <Divider style={{width: '100%'}}/>
+            <TouchableOpacity style={styles.langOption} onPress={() => { changeLanguage('ha'); setLangModalVisible(false); }}>
+              <Text style={styles.langText}>🇳🇬 Hausa</Text>
+            </TouchableOpacity>
+            <Divider style={{width: '100%'}}/>
+            <TouchableOpacity style={styles.langOption} onPress={() => { changeLanguage('yo'); setLangModalVisible(false); }}>
+              <Text style={styles.langText}>🇳🇬 Yoruba</Text>
+            </TouchableOpacity>
+            <Divider style={{width: '100%'}}/>
+            <TouchableOpacity style={styles.langOption} onPress={() => { changeLanguage('ig'); setLangModalVisible(false); }}>
+              <Text style={styles.langText}>🇳🇬 Igbo</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.cancelBtn} onPress={() => setLangModalVisible(false)}>
+              <Text style={styles.cancelText}>{t("cancel")}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -199,4 +222,12 @@ const styles = StyleSheet.create({
   },
   logoutText: { color: '#FF5252', fontWeight: 'bold', marginLeft: 10, fontSize: 16 },
   versionText: { textAlign: 'center', color: '#BBB', fontSize: 12, marginTop: 20, marginBottom: 30 },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  modalContent: { width: '80%', backgroundColor: '#FFF', borderRadius: 20, padding: 20, alignItems: 'center' },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, color: '#333' },
+  langOption: { width: '100%', paddingVertical: 15, alignItems: 'center' },
+  langText: { fontSize: 16, color: '#2E7D32', fontWeight: '600' },
+  cancelBtn: { marginTop: 15, padding: 10 },
+  cancelText: { color: '#FF5252', fontWeight: 'bold', fontSize: 16 },
 });

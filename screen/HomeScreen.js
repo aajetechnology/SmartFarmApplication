@@ -7,8 +7,10 @@ import {
   Image,
   Dimensions,
   StatusBar,
+  Alert,
+  Modal,
 } from "react-native";
-import { Text, Avatar, Surface, IconButton } from "react-native-paper";
+import { Text, Avatar, Surface, IconButton, Divider } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
@@ -39,10 +41,11 @@ const ActionTile = ({ icon, label, onPress, color }) => (
 
 export default function HomeScreen() {
   const navigation = useNavigation();
-  const { t } = useTranslation();
+  const { t, changeLanguage, lang } = useTranslation();
   const [weatherData, setWeatherData] = useState(null);
   const [user, setUser] = useState(null);
   const [greeting, setGreeting] = useState("welcome");
+  const [langModalVisible, setLangModalVisible] = useState(false);
 
   useEffect(() => {
     // Set Dynamic Greeting
@@ -79,7 +82,7 @@ export default function HomeScreen() {
 
   let profilePic = user?.profile_pic;
   if (profilePic && !profilePic.startsWith('http')) {
-     profilePic = `${BASE_URL}${profilePic.startsWith('/') ? '' : '/'}${profilePic}`;
+    profilePic = `${BASE_URL}${profilePic.startsWith('/') ? '' : '/'}${profilePic}`;
   }
 
   return (
@@ -93,15 +96,20 @@ export default function HomeScreen() {
             <Text style={styles.greetingText}>{t(greeting)},</Text>
             <Text style={styles.usernameText}>{user?.username || t("farmer")}</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
-            <Surface style={styles.avatarSurface}>
-              {profilePic ? (
-                <Image source={{ uri: profilePic }} style={styles.profilePic} />
-              ) : (
-                <Avatar.Text size={45} label={user?.username?.[0]?.toUpperCase() || "F"} style={styles.avatar} />
-              )}
-            </Surface>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => setLangModalVisible(true)} style={{ marginRight: 15 }}>
+              <Ionicons name="earth" size={24} color="#FFF" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
+              <Surface style={styles.avatarSurface}>
+                {profilePic ? (
+                  <Image source={{ uri: profilePic }} style={styles.profilePic} />
+                ) : (
+                  <Avatar.Text size={45} label={user?.username?.[0]?.toUpperCase() || "F"} style={styles.avatar} />
+                )}
+              </Surface>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* ── GLASS WEATHER WIDGET ──────────────── */}
@@ -154,6 +162,35 @@ export default function HomeScreen() {
         </View>
 
       </ScrollView>
+
+      {/* ── LANGUAGE MODAL ──────────────── */}
+      <Modal visible={langModalVisible} transparent={true} animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{t("select_language")}</Text>
+
+            <TouchableOpacity style={styles.langOption} onPress={() => { changeLanguage('en'); setLangModalVisible(false); }}>
+              <Text style={styles.langText}>🇺🇸 English</Text>
+            </TouchableOpacity>
+            <Divider style={{ width: '100%' }} />
+            <TouchableOpacity style={styles.langOption} onPress={() => { changeLanguage('ha'); setLangModalVisible(false); }}>
+              <Text style={styles.langText}>🇳🇬 Hausa</Text>
+            </TouchableOpacity>
+            <Divider style={{ width: '100%' }} />
+            <TouchableOpacity style={styles.langOption} onPress={() => { changeLanguage('yo'); setLangModalVisible(false); }}>
+              <Text style={styles.langText}>🇳🇬 Yoruba</Text>
+            </TouchableOpacity>
+            <Divider style={{ width: '100%' }} />
+            <TouchableOpacity style={styles.langOption} onPress={() => { changeLanguage('ig'); setLangModalVisible(false); }}>
+              <Text style={styles.langText}>🇳🇬 Igbo</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.cancelBtn} onPress={() => setLangModalVisible(false)}>
+              <Text style={styles.cancelText}>{t("cancel")}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -213,4 +250,12 @@ const styles = StyleSheet.create({
   iconWrapper: { width: 45, height: 45, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   gridLabel: { fontWeight: "700", color: "#333", fontSize: 13, flex: 1, marginLeft: 12 },
   chevron: { opacity: 0.5 },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  modalContent: { width: '80%', backgroundColor: '#FFF', borderRadius: 20, padding: 20, alignItems: 'center' },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, color: '#333' },
+  langOption: { width: '100%', paddingVertical: 15, alignItems: 'center' },
+  langText: { fontSize: 16, color: '#2E7D32', fontWeight: '600' },
+  cancelBtn: { marginTop: 15, padding: 10 },
+  cancelText: { color: '#FF5252', fontWeight: 'bold', fontSize: 16 },
 });

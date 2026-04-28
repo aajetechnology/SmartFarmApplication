@@ -25,17 +25,54 @@ export default function ScanScreen() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [hasError, setHasError] = useState(false);
+  const [soundObj, setSoundObj] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const { t } = useTranslation();
 
   const playAdvice = async (base64Audio) => {
     try {
+      if (soundObj) {
+        await soundObj.unloadAsync();
+      }
       const uri = `data:audio/mp3;base64,${base64Audio}`;
       const { sound } = await Audio.Sound.createAsync({ uri });
+      setSoundObj(sound);
+      setIsPlaying(true);
       await sound.playAsync();
+
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.didJustFinish) {
+          setIsPlaying(false);
+        }
+      });
     } catch (e) {
       console.log("Audio Error", e);
     }
   };
+
+  const toggleAudio = async () => {
+    if (!soundObj) {
+      if (result?.audio_base64) {
+        await playAdvice(result.audio_base64);
+      }
+      return;
+    }
+    if (isPlaying) {
+      await soundObj.pauseAsync();
+      setIsPlaying(false);
+    } else {
+      await soundObj.playAsync();
+      setIsPlaying(true);
+    }
+  };
+
+  useEffect(() => {
+    return soundObj
+      ? () => {
+          soundObj.unloadAsync();
+        }
+      : undefined;
+  }, [soundObj]);
 
   const pickImage = async (useCamera = true) => {
     setHasError(false);
@@ -142,7 +179,13 @@ export default function ScanScreen() {
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{t("diagnosis")}</Text>
               </View>
-              {result.audio_base64 && <IconButton icon="volume-high" iconColor="#2E7D32" onPress={() => playAdvice(result.audio_base64)} />}
+              {result.audio_base64 && (
+                <IconButton 
+                  icon={isPlaying ? "pause" : "volume-high"} 
+                  iconColor={isPlaying ? "#4CAF50" : "#2E7D32"} 
+                  onPress={toggleAudio} 
+                />
+              )}
             </View>
 
             <Text style={styles.diseaseName}>{t(result.prediction)}</Text>
@@ -158,7 +201,9 @@ export default function ScanScreen() {
 
             <View style={styles.adviceCard}>
               <View style={styles.adviceHead}>
-                <Ionicons name="sparkles" size={18} color="#2E7D32" />
+                <TouchableOpacity onPress={toggleAudio}>
+                  <Ionicons name="sparkles" size={18} color={isPlaying ? "#4CAF50" : "#2E7D32"} />
+                </TouchableOpacity>
                 <Text style={styles.adviceTitle}>{t("expert_advice")}</Text>
               </View>
               <Text style={styles.adviceBody}>{result.farmi_advice || t("no_advice")}</Text>
